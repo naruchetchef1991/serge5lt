@@ -19,6 +19,7 @@ function App() {
   const [summary, setSummary] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('');
+  const [visibleRows, setVisibleRows] = useState(30);
 
   useEffect(() => {
     fetch(
@@ -37,6 +38,10 @@ function App() {
       })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    setVisibleRows(30); // reset when searchTerm or selectedPeriod changes
+  }, [searchTerm, selectedPeriod]);
 
   const orderBySummary = Object.entries(summary)
     .filter(([diagnosis]) => diagnosis !== '-')
@@ -141,7 +146,7 @@ function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {orderBySummary.map(([diagnosis, count], index) => (
+                      {orderBySummary.slice(0, visibleRows).map(([diagnosis, count], index) => (
                         <tr key={index}>
                           <td className="small">{index + 1}</td>
                           <td className="text-start small">{diagnosis}</td>
@@ -157,6 +162,17 @@ function App() {
                       )}
                     </tbody>
                   </table>
+                  {/* Load More Button */}
+                  {visibleRows < orderBySummary.length && (
+                    <div className="text-center my-3">
+                      <button
+                        className="btn btn-outline-primary rounded-pill px-4"
+                        onClick={() => setVisibleRows(v => v + 30)}
+                      >
+                        แสดงเพิ่มเติม
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <p className="text-center text-muted mt-3 mb-0 small">
                   รวมทั้งหมด <span className="fw-bold text-primary">{orderBySummary.length}</span> รายการ
