@@ -23,7 +23,7 @@ function App() {
 
   useEffect(() => {
     fetch(
-      'https://opensheet.elk.sh/1zHDxblHaHrcCrmTteVhij-3yfrl7bM9kYk-8dGiJuxE/%E0%B8%95%E0%B8%B8%E0%B8%A5%E0%B8%B2%E0%B8%84%E0%B8%A1%2067'
+        'https://opensheet.elk.sh/1zHDxblHaHrcCrmTteVhij-3yfrl7bM9kYk-8dGiJuxE/%E0%B8%A1%E0%B8%B4%E0%B8%96%E0%B8%B8%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%99%202568'
     )
       .then((res) => res.json())
       .then((fetchedData) => {
