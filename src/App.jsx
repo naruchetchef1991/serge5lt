@@ -44,15 +44,25 @@ function App() {
               </div>
               <div className="card-body p-3 p-md-4">
                 {/* Search Input */}
-                <div className="mb-3 mb-md-4">
-                  <input
-                    type="text"
+                {data.length > 0 && (
+                  <div className="mb-3 mb-md-4">
+                    <input
+                      type="text"
                     placeholder="ค้นหา"
                     className="form-control form-control-lg shadow-sm rounded-pill px-3 px-md-4"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
+                    />
+                  </div>
+                )}
+                {/* show loading   */}
+                {data.length === 0 && (
+                  <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                )}
                 {/* Table */}
                 <div className="table-responsive px-0">
                   <table className="table table-bordered table-hover table-sm text-center align-middle bg-white mb-0 w-100">
