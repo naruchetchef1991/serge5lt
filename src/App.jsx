@@ -5,6 +5,7 @@ function App() {
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState('');
 
   useEffect(() => {
     fetch(
@@ -31,6 +32,13 @@ function App() {
     )
     .sort((a, b) => b[1] - a[1]);
 
+  // Generate last 2 years (including this year) in Buddhist calendar
+  const now = new Date();
+  const currentYear = now.getFullYear() + 543;
+  const years = [currentYear, currentYear - 1];
+  // Use January as the month for the dropdown
+  const periodOptions = years.map(year => `มกราคม ${year}`);
+
   return (
     <div className="app-bg min-vh-100 py-3 py-md-4">
       <div className="container-fluid px-2 px-md-4">
@@ -45,15 +53,30 @@ function App() {
               <div className="card-body p-3 p-md-4">
                 {/* Search Input */}
                 {data.length > 0 && (
-                  <div className="mb-3 mb-md-4">
-                    <input
-                      type="text"
-                    placeholder="ค้นหา"
-                    className="form-control form-control-lg shadow-sm rounded-pill px-3 px-md-4"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+                  <>
+                    <div className="mb-3 mb-md-4">
+                      <input
+                        type="text"
+                        placeholder="ค้นหา"
+                        className="form-control form-control-lg shadow-sm rounded-pill px-3 px-md-4 w-100"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    {/* Dropdown for period selection */}
+                    <div className="mb-3 mb-md-4">
+                      <select
+                        className="form-select form-select-lg shadow-sm rounded-pill px-3 px-md-4 w-100"
+                        value={selectedPeriod}
+                        onChange={e => setSelectedPeriod(e.target.value)}
+                      >
+                        <option value="">เลือกช่วงเวลา</option>
+                        {periodOptions.map((period, idx) => (
+                          <option key={idx} value={period}>{period}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
                 )}
                 {/* show loading   */}
                 {data.length === 0 && (
