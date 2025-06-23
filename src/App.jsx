@@ -20,35 +20,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [visibleRows, setVisibleRows] = useState(30);
-
-  useEffect(() => {
-    fetch(
-        'https://opensheet.elk.sh/1zHDxblHaHrcCrmTteVhij-3yfrl7bM9kYk-8dGiJuxE/%E0%B8%A1%E0%B8%B4%E0%B8%96%E0%B8%B8%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%99%202568'
-    )
-      .then((res) => res.json())
-      .then((fetchedData) => {
-        setData(fetchedData);
-
-        const counts = fetchedData.reduce((acc, row) => {
-          const key = row['การวินิจฉัย']?.trim() || '-';
-          acc[key] = (acc[key] || 0) + 1;
-          return acc;
-        }, {});
-        setSummary(counts);
-      })
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    setVisibleRows(30); // reset when searchTerm or selectedPeriod changes
-  }, [searchTerm, selectedPeriod]);
-
-  const orderBySummary = Object.entries(summary)
-    .filter(([diagnosis]) => diagnosis !== '-')
-    .filter(([diagnosis]) =>
-      diagnosis.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => b[1] - a[1]);
+  const [loading, setLoading] = useState(false);
 
   // Generate last 24 months (including this month) in Buddhist calendar
   const thaiMonths = [
@@ -64,6 +36,49 @@ function App() {
     periodOptions.push(`${month} ${year}`);
   }
 
+  // Set default period to the first option (latest month)
+  useEffect(() => {
+    if (!selectedPeriod && periodOptions.length > 0) {
+      setSelectedPeriod(periodOptions[0]);
+    }
+  }, [periodOptions, selectedPeriod]);
+
+  useEffect(() => {
+    if (!selectedPeriod) return;
+    setLoading(true);
+    fetch(
+      `https://opensheet.elk.sh/1zHDxblHaHrcCrmTteVhij-3yfrl7bM9kYk-8dGiJuxE/${encodeURIComponent(selectedPeriod)}`
+    )
+      .then((res) => res.json())
+      .then((fetchedData) => {
+        setData(fetchedData);
+        setLoading(false);
+        const counts = fetchedData.reduce((acc, row) => {
+          const key = row['การวินิจฉัย']?.trim() || '-';
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+        setSummary(counts);
+      }).catch((err) => {
+         //reset data and loading to false
+         setLoading(false);
+         console.error(err);
+         setData([]);
+         setSummary({});
+      });
+  }, [selectedPeriod]);
+
+  useEffect(() => {
+    setVisibleRows(30); // reset when searchTerm or selectedPeriod changes
+  }, [searchTerm, selectedPeriod]);
+
+  const orderBySummary = Object.entries(summary)
+    .filter(([diagnosis]) => diagnosis !== '-')
+    .filter(([diagnosis]) =>
+      diagnosis.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => b[1] - a[1]);
+
   return (
     <div className="app-bg min-vh-100 py-3 py-md-4">
       <div className="container-fluid px-2 px-md-4">
@@ -76,9 +91,7 @@ function App() {
                 </h2>
               </div>
               <div className="card-body p-3 p-md-4">
-                {/* Search Input */}
-                {data.length > 0 && (
-                  <>
+              <>
                     <div className="mb-3 mb-md-4">
                       <input
                         type="text"
@@ -102,9 +115,8 @@ function App() {
                       </select>
                     </div>
                   </>
-                )}
                 {/* show loading   */}
-                {data.length === 0 && (
+                {loading && (
                   <div className="text-center py-5">
                     <div className="spinner-border text-primary" role="status">
                       <span className="visually-hidden">Loading...</span>
