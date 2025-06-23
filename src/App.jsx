@@ -44,6 +44,7 @@ function App() {
 
   useEffect(() => {
     if (!selectedPeriod) return;
+    console.log('selectedPeriod', selectedPeriod);
     setLoading(true);
     fetch(
       `https://opensheet.elk.sh/1zHDxblHaHrcCrmTteVhij-3yfrl7bM9kYk-8dGiJuxE/${encodeURIComponent(selectedPeriod)}`
