@@ -15,7 +15,6 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 function App() {
-  const [data, setData] = useState([]);
   const [summary, setSummary] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('');
@@ -51,7 +50,6 @@ function App() {
     )
       .then((res) => res.json())
       .then((fetchedData) => {
-        setData(fetchedData);
         setLoading(false);
         const counts = fetchedData.reduce((acc, row) => {
           const key = row['การวินิจฉัย']?.trim() || '-';
@@ -63,7 +61,6 @@ function App() {
          //reset data and loading to false
          setLoading(false);
          console.error(err);
-         setData([]);
          setSummary({});
       });
   }, [selectedPeriod]);
@@ -124,68 +121,72 @@ function App() {
                   </div>
                 )}
                 {/* Pie Chart Top 5 */}
-                <div className="mb-4">
-                  <Pie
-                    data={{
-                      labels: orderBySummary.slice(0, 5).map(([diagnosis]) => diagnosis),
-                      datasets: [
-                        {
-                          label: 'จำนวน',
-                          data: orderBySummary.slice(0, 5).map(([, count]) => count),
-                          backgroundColor: [
-                            '#2563eb', '#60a5fa', '#fbbf24', '#f87171', '#34d399'
-                          ],
+                {!loading && (
+                  <div className="mb-4">
+                    <Pie
+                      data={{
+                        labels: orderBySummary.slice(0, 5).map(([diagnosis]) => diagnosis),
+                        datasets: [
+                          {
+                            label: 'จำนวน',
+                            data: orderBySummary.slice(0, 5).map(([, count]) => count),
+                            backgroundColor: [
+                              '#2563eb', '#60a5fa', '#fbbf24', '#f87171', '#34d399'
+                            ],
+                          },
+                        ],
+                      }}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: { position: 'bottom' },
+                          title: { display: true, text: '5 อันดับสูงสุด' },
                         },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      plugins: {
-                        legend: { position: 'bottom' },
-                        title: { display: true, text: '5 อันดับสูงสุด' },
-                      },
-                    }}
-                  />
-                </div>
+                      }}
+                    />
+                  </div>
+                )}
                 {/* Table */}
-                <div className="table-responsive px-0">
-                  <table className="table table-bordered table-hover table-sm text-center align-middle bg-white mb-0 w-100">
-                    <thead className="table-primary">
-                      <tr>
-                        <th>ลำดับ</th>
-                        <th>การวินิจฉัย</th>
-                        <th className="text-nowrap">จำนวน</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {orderBySummary.slice(0, visibleRows).map(([diagnosis, count], index) => (
-                        <tr key={index}>
-                          <td className="small">{index + 1}</td>
-                          <td className="text-start small">{diagnosis}</td>
-                          <td className="fw-bold small">{count}</td>
-                        </tr>
-                      ))}
-                      {orderBySummary.length === 0 && (
+                {!loading && (
+                  <div className="table-responsive px-0">
+                    <table className="table table-bordered table-hover table-sm text-center align-middle bg-white mb-0 w-100">
+                      <thead className="table-primary">
                         <tr>
-                          <td colSpan={3} className="text-muted py-3">
-                            ไม่พบรายการที่ตรงกับคำค้นหา
-                          </td>
+                          <th>ลำดับ</th>
+                          <th>การวินิจฉัย</th>
+                          <th className="text-nowrap">จำนวน</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                  {/* Load More Button */}
-                  {visibleRows < orderBySummary.length && (
-                    <div className="text-center my-3">
-                      <button
-                        className="btn btn-outline-primary rounded-pill px-4"
-                        onClick={() => setVisibleRows(v => v + 30)}
-                      >
-                        แสดงเพิ่มเติม
-                      </button>
-                    </div>
-                  )}
-                </div>
+                      </thead>
+                      <tbody>
+                        {orderBySummary.slice(0, visibleRows).map(([diagnosis, count], index) => (
+                          <tr key={index}>
+                            <td className="small">{index + 1}</td>
+                            <td className="text-start small">{diagnosis}</td>
+                            <td className="fw-bold small">{count}</td>
+                          </tr>
+                        ))}
+                        {orderBySummary.length === 0 && (
+                          <tr>
+                            <td colSpan={3} className="text-muted py-3">
+                              ไม่พบรายการที่ตรงกับคำค้นหา
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                    {/* Load More Button */}
+                    {visibleRows < orderBySummary.length && (
+                      <div className="text-center my-3">
+                        <button
+                          className="btn btn-outline-primary rounded-pill px-4"
+                          onClick={() => setVisibleRows(v => v + 30)}
+                        >
+                          แสดงเพิ่มเติม
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <p className="text-center text-muted mt-3 mb-0 small">
                   รวมทั้งหมด <span className="fw-bold text-primary">{orderBySummary.length}</span> รายการ
                 </p>
